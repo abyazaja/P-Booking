@@ -18,21 +18,21 @@ export default function LandingPage() {
 
       {/* About Section */}
       <section className="bg-white py-16">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="w-full mx-auto px-4">
           <About />
         </div>
       </section>
 
       {/* Court Section */}
       <section className="bg-white py-16">
-        <div className="max-w-6xl mx-auto px-4 text-center">
+        <div className="w-full mx-auto px-4 text-center">
           <Court />
         </div>
       </section>
 
       {/* Contact Section */}
       <section className="bg-white py-16 border-t">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="w-full mx-auto px-4">
           <Contact />
         </div>
       </section>

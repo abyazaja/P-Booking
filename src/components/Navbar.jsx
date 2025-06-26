@@ -3,7 +3,7 @@ import BallLogo from './BallLogo';
 const Navbar = () => {
   return (
     <nav className="bg-white/90 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
           {/* Logo Section */}
           <a href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">

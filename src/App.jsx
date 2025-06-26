@@ -4,7 +4,6 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import BookingPage from './pages/BookingPage';
 import UserDashboard from './pages/UserDashboard';
-import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageCourts from './pages/ManageCourts';
 import ManageBookings from './pages/ManageBookings';
@@ -42,7 +41,6 @@ function App() {
       
       <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
-      <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       <Route path="/admin/courts" element={<AdminRoute><ManageCourts /></AdminRoute>} />
       <Route path="/admin/bookings" element={<AdminRoute><ManageBookings /></AdminRoute>} />

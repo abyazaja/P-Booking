@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ballwhite to-ballgray">
+      <div class="min-h-screen justify-center flex flex-col bg-gradient-to-br from-ballwhite to-ballgray">
           <App />
         </div>
       </AuthProvider>
