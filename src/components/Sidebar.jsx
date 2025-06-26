@@ -94,7 +94,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <User className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">Admin User</p>
+                <p className="text-sm font-semibold text-gray-900">Admin</p>
                 <p className="text-xs text-gray-500">admin@planetfutsal.com</p>
               </div>
               <button className="text-gray-400 hover:text-red-500 transition-colors">
