@@ -47,7 +47,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               <BallLogo size={40} />
               <div>
                 <h2 className="text-xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
-                  Planet Futsal
+                  P-Booking
                 </h2>
                 <p className="text-xs text-gray-500">Admin Panel</p>
               </div>

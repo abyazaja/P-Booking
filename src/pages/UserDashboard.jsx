@@ -1,13 +1,12 @@
-import React, { useState } from "react";
-import { Calendar, CheckCircle, Clock, Star, User, BookOpen, HelpCircle, ListChecks } from "lucide-react";
-import UserDashboardNavbar from "../components/UserDashboardNavbar";
+import React from "react";
+import { Calendar, Clock, CheckCircle, ListChecks, Star, HelpCircle, Trophy, User, Activity } from "lucide-react";
 import UserDashboardLayout from "../layouts/UserDashboardLayout";
 
 const summaryData = [
   {
     title: "Total Bookings",
     value: 12,
-    icon: <BookOpen className="w-7 h-7 text-blue-500" />,
+    icon: <Calendar className="w-7 h-7 text-blue-500" />,
     color: "bg-blue-100 text-blue-700",
   },
   {
@@ -30,136 +29,101 @@ const summaryData = [
   },
 ];
 
-const bookings = [
-  {
-    id: 1,
-    date: "2024-06-12 17:00",
-    court: "Lapangan 1",
-    duration: "2 jam",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    date: "2024-06-15 19:00",
-    court: "Lapangan 2",
-    duration: "1 jam",
-    status: "Active",
-  },
+const recentActivity = [
+  { id: 1, action: "Booking Lapangan 1", time: "Hari ini, 10:00", status: "Completed" },
+  { id: 2, action: "Booking Lapangan 2", time: "Kemarin, 19:00", status: "Active" },
+  { id: 3, action: "Booking Lapangan 3", time: "2 hari lalu, 17:00", status: "Completed" },
 ];
 
-const upcoming = [
-  {
-    id: 3,
-    date: "2024-06-20 18:00",
-    court: "Lapangan 3",
-    duration: "2 jam",
-    status: "Upcoming",
-  },
+const quickActions = [
+  { label: "Book a Court", icon: Calendar, color: "from-blue-500 to-blue-600" },
+  { label: "View Schedule", icon: Clock, color: "from-green-500 to-green-600" },
+  { label: "My Bookings", icon: ListChecks, color: "from-purple-500 to-purple-600" },
+  { label: "Get Support", icon: HelpCircle, color: "from-orange-500 to-orange-600" },
 ];
 
 const UserDashboard = () => {
-  const [activeTab, setActiveTab] = useState("history");
   const user = { name: "Budi Santoso", loyalty: 120, rating: 4.7 };
-
   return (
     <UserDashboardLayout>
-      <div className="mb-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-ballgreen mb-1">
-          Selamat datang kembali, {user.name}!
-        </h2>
-        <div className="flex items-center gap-4 mt-2">
-          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
-            <Star className="w-4 h-4" /> Poin Loyalti: <b>{user.loyalty}</b>
-          </span>
-          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
-            <Star className="w-4 h-4" /> Rating: <b>{user.rating}</b>
-          </span>
+      <div className="space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {summaryData.map((item) => (
+            <div key={item.title} className={`rounded-2xl shadow-sm p-5 flex flex-col items-center ${item.color}`}>
+              <div className="mb-2">{item.icon}</div>
+              <div className="text-2xl font-bold">{item.value}</div>
+              <div className="text-sm font-medium">{item.title}</div>
+            </div>
+          ))}
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {summaryData.map((item) => (
-          <div
-            key={item.title}
-            className={`rounded-2xl shadow-sm p-5 flex flex-col items-center ${item.color}`}
-          >
-            <div className="mb-2">{item.icon}</div>
-            <div className="text-2xl font-bold">{item.value}</div>
-            <div className="text-sm font-medium">{item.title}</div>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Activity */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-green-500" /> Aktivitas Terbaru
+              </h3>
+              <div className="space-y-4">
+                {recentActivity.map((act) => (
+                  <div key={act.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex-shrink-0">
+                      <User className="w-6 h-6 text-blue-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {act.action}
+                      </p>
+                      <p className="text-xs text-gray-500">{act.time}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${act.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>{act.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
-
-      <UserDashboardNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div className="bg-white rounded-2xl shadow p-4 mt-4 mb-8 overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-left text-gray-600">
-              <th className="py-2 px-3">Tanggal & Waktu</th>
-              <th className="py-2 px-3">Lapangan</th>
-              <th className="py-2 px-3">Durasi</th>
-              <th className="py-2 px-3">Status</th>
-              <th className="py-2 px-3">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(activeTab === "history" ? bookings : upcoming).map((b) => (
-              <tr key={b.id} className="border-t">
-                <td className="py-2 px-3">{b.date}</td>
-                <td className="py-2 px-3">{b.court}</td>
-                <td className="py-2 px-3">{b.duration}</td>
-                <td className="py-2 px-3">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-semibold ${
-                      b.status === "Completed"
-                        ? "bg-green-100 text-green-700"
-                        : b.status === "Active"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
+          {/* Quick Actions */}
+          <div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {quickActions.map((action) => (
+                  <button
+                    key={action.label}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl bg-gradient-to-r ${action.color} text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105`}
                   >
-                    {b.status}
-                  </span>
-                </td>
-                <td className="py-2 px-3">
-                  <button className="bg-ballgreen text-white px-3 py-1 rounded hover:bg-green-700 transition">
-                    {activeTab === "history" ? "Lihat Detail" : "Batalkan"}
+                    <action.icon className="w-6 h-6 mb-2" />
+                    <span className="text-sm font-medium">{action.label}</span>
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 rounded-2xl shadow-lg flex flex-col items-center">
-          <Calendar className="w-7 h-7 mb-2" />
-          Book a Court
-        </button>
-        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-2xl shadow-lg flex flex-col items-center">
-          <Clock className="w-7 h-7 mb-2" />
-          View Schedule
-        </button>
-        <button className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-4 rounded-2xl shadow-lg flex flex-col items-center">
-          <ListChecks className="w-7 h-7 mb-2" />
-          Manage My Bookings
-        </button>
-        <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-2xl shadow-lg flex flex-col items-center">
-          <HelpCircle className="w-7 h-7 mb-2" />
-          Get Support
-        </button>
-      </div>
-
-      <div className="bg-blue-100 border-l-4 border-blue-400 rounded-xl p-4 mb-8 flex items-center gap-3">
-        <User className="w-6 h-6 text-blue-500" />
-        <span className="text-blue-800 font-medium">
-          Lapangan 3 kosong jam 17.00 - 19.00 hari ini. <b>Ayo booking sekarang!</b>
-        </span>
+        {/* Additional Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+            <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
+            <h4 className="text-lg font-semibold text-gray-900 mb-1">Poin Loyalti</h4>
+            <p className="text-2xl font-bold text-yellow-600">{user.loyalty}</p>
+          </div>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+            <Star className="w-8 h-8 text-purple-500 mx-auto mb-3" />
+            <h4 className="text-lg font-semibold text-gray-900 mb-1">Rating Pengalaman</h4>
+            <p className="text-2xl font-bold text-purple-600">{user.rating}</p>
+          </div>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+            <HelpCircle className="w-8 h-8 text-blue-500 mx-auto mb-3" />
+            <h4 className="text-lg font-semibold text-gray-900 mb-1">Butuh Bantuan?</h4>
+            <p className="text-base text-blue-600">Hubungi support kami kapan saja!</p>
+          </div>
+        </div>
       </div>
     </UserDashboardLayout>
   );
 };
 
-export default UserDashboard; 
+export default UserDashboard;

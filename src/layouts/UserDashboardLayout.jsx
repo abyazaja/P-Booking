@@ -18,7 +18,7 @@ const UserDashboardLayout = ({ children }) => (
           <span className="text-white font-bold text-lg">P</span>
         </div>
         <span className="text-2xl font-bold text-gray-800">
-          Planet <span className="text-green-500">Futsal</span>
+          P- <span className="text-green-500">Booking</span>
         </span>
       </div>
       <nav className="flex-1 px-4 py-6">
