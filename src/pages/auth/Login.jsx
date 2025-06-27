@@ -1,4 +1,4 @@
-import { AlertTriangle, Loader2 } from "lucide-react"; 
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -55,13 +55,9 @@ export default function Login() {
         Login
       </h2>
 
-      {/* Error Alert */}
+      {/* Error message like Register page */}
       {error && (
-        <div className="relative mb-5 p-4 pl-11 rounded-lg border border-red-300 bg-red-50 text-red-800 shadow-sm transition-all duration-300 ease-in-out">
-          <AlertTriangle className="absolute left-4 top-4 w-5 h-5 text-red-500" />
-          <div className="font-semibold mb-1">Login Failed</div>
-          <div className="text-sm">{error}</div>
-        </div>
+        <div className="text-red-500 text-center mb-5">{error}</div>
       )}
 
       {/* Loading Spinner */}
@@ -78,7 +74,7 @@ export default function Login() {
           type="email"
           name="email"
           className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ballgreen"
-          placeholder="you@example.com"
+          placeholder=" "
           onChange={handleChange}
           value={formData.email}
         />
@@ -90,7 +86,7 @@ export default function Login() {
           type="password"
           name="password"
           className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ballgreen"
-          placeholder="********"
+          placeholder=""
           onChange={handleChange}
           value={formData.password}
         />
