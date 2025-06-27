@@ -18,10 +18,10 @@ import AuthLayout from './layouts/AuthLayout';
 import GuestLayout from './layouts/GuestLayout';
 import GuestDashboard from './pages/GuestDashboard';
 import Forgot from './pages/auth/Forgot';
+
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Homepage />}/>
         <Route element={<MainLayout/>}>
           
         </Route>
@@ -34,7 +34,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/courts" element={<Courts />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/GuestDashboard" element={<GuestDashboard/>}></Route>
+          <Route path="/" element={<GuestDashboard/>}></Route>
         </Route>
       
       
