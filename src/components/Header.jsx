@@ -12,7 +12,7 @@ const Header = ({ toggleSidebar }) => {
   const [showProfile, setShowProfile] = useState(false);
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100 px-6 py-4 mb-6">
+    <header className="bg-white shadow-sm border-b border-gray-100 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
@@ -21,10 +21,12 @@ const Header = ({ toggleSidebar }) => {
           >
             <Menu className="w-5 h-5 text-gray-600" />
           </button>
-          
+
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-sm text-gray-500">Welcome back, manage your futsal business</p>
+            <p className="text-sm text-gray-500">
+              Welcome back, manage your futsal business
+            </p>
           </div>
         </div>
 
@@ -59,10 +61,25 @@ const Header = ({ toggleSidebar }) => {
 
             {showProfile && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile</a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Settings</a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Profile
+                </a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Settings
+                </a>
                 <hr className="my-2" />
-                <a href="#" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </a>
               </div>
             )}
           </div>

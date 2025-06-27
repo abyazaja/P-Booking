@@ -3,24 +3,14 @@ import { MapPin, Clock, Users, Trophy, Calendar, Star } from 'lucide-react';
 import GuestLayout from '../layouts/GuestLayout';
 import BallLogo from '../components/BallLogo';
 
-// Mock BallLogo component
-const BallLogoComponent = ({ size = 64, className = "" }) => (
-  <div className={`inline-flex items-center ${className}`}>
-    <div className="relative">
-      <div 
-        className="rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg"
-        style={{ width: size, height: size }}
-      >
-        <div className="absolute inset-2 rounded-full bg-white/30 border-2 border-white/50">
-          <div className="absolute inset-2 rounded-full bg-orange-400"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
 const Homepage = () => (
-    <div className="w-full max-w-2xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-6 md:p-10 text-center relative overflow-hidden">
+  <div
+    className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center px-4"
+    style={{
+      backgroundImage: "url('/src/assets/lapangan.jpg')"
+    }}
+  >
+    <div className="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-10 text-center">
       <BallLogo size={64} className="justify-center mb-4 mx-auto" />
       <h1 className="text-3xl md:text-5xl font-extrabold mb-2 text-ballblack">Planet Futsal</h1>
       <p className="text-base md:text-lg mb-6 text-ballblack/80">Book your futsal court online with ease and style!</p>
@@ -44,6 +34,7 @@ const Homepage = () => (
         <a href="/contact" className="px-6 py-2 rounded-full bg-ballblack/10 text-ballblack font-semibold hover:bg-ballblack/20 transition">Contact</a>
       </div>
     </div>
+  </div>
 );
 
-export default Homepage;
+export default Homepage;

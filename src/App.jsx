@@ -35,18 +35,14 @@ function App() {
         <Route path="/" element={<GuestDashboard />}></Route>
       </Route>
 
-      <Route element={<MainLayout />}>
-        {/* Protected routes yang memerlukan login */}
-        <Route path="/booking" element={<BookingPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <UserDashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
@@ -59,44 +55,21 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/courts" element={<Courts />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/GuestDashboard" element={<GuestDashboard />} />
       </Route>
 
       {/* Admin routes */}
       <Route
-        path="/admin/dashboard"
         element={
           <AdminRoute>
-            <AdminDashboard />
+            <MainLayout />
           </AdminRoute>
         }
-      />
-      <Route
-        path="/admin/courts"
-        element={
-          <AdminRoute>
-            <ManageCourts />
-          </AdminRoute>
-        }
-      />
-      <Route
-        path="/a
-      
-      "
-        element={
-          <AdminRoute>
-            <ManageBookings />
-          </AdminRoute>
-        }
-      />
-      <Route
-        path="/admin/users"
-        element={
-          <AdminRoute>
-            <ManageUsers />
-          </AdminRoute>
-        }
-      />
+      >
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/bookings" element={<ManageBookings />} />
+        <Route path="/admin/courts" element={<ManageCourts />} />
+        <Route path="/admin/users" element={<ManageUsers />} />
+      </Route>
 
       {/* Redirect untuk route yang tidak ditemukan */}
       <Route path="*" element={<Navigate to="/" replace />} />

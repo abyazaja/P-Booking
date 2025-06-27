@@ -28,7 +28,6 @@ const AdminDashboard = () => {
   };
 
   return (
-    <MainLayout>
       <div className="space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,7 +94,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
   );
 };
 
