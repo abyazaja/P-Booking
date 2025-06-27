@@ -1,40 +1,38 @@
-import { Link, useLocation } from "react-router-dom";
 import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom"; // Added useLocation for active link
 import {
   Home,
   Calendar,
-  Users,
-  BarChart3,
-  Settings,
-  MapPin,
-  X,
-  User,
+  User, // Kept User for profile, not Users for admin
+  List, // Kept List for My Schedule
   LogOut,
-  Mail, // Added Mail icon for messages
+  X, // For mobile close button
 } from "lucide-react";
-import BallLogo from "./BallLogo";
+import BallLogo from './BallLogo';
+// Assuming BallLogo is a component that renders your logo
+// If you don't have this, you'll need to create it or replace it with your logo logic
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+
+const UserSidebar = ({ isOpen, toggleSidebar }) => {
+  const location = useLocation(); // Hook to get current path
+  // Determine active menu based on current path
+  const getActiveMenuId = (path) => {
+    if (path.startsWith("/BookingHistory")) return "BookHis";
+    if (path.startsWith("/booking")) return "bookings";
+    return "dashboard"; // Default to dashboard
+  };
+
+  const [activeMenu, setActiveMenu] = useState(getActiveMenuId(location.pathname));
+
+  // Update active menu when location changes
+  React.useEffect(() => {
+    setActiveMenu(getActiveMenuId(location.pathname));
+  }, [location.pathname]);
 
   const menuItems = [
-    { id: "dashboard", icon: Home, label: "Dashboard", to: "/admin/dashboard" },
-    {
-      id: "bookings",
-      icon: Calendar,
-      label: "Bookings",
-      to: "/admin/bookings",
-      badge: "8",
-    },
-    { id: "users", icon: Users, label: "Users", to: "/admin/users" },
-    { id: "courts", icon: MapPin, label: "Courts", to: "/admin/courts" },
-    // New Messages menu item
-    {
-      id: "messages",
-      icon: Mail,
-      label: "Messages",
-      to: "/admin/messages",
-    },
+    { id: "dashboard", icon: Home, label: "Dashboard", to: "/dashboard" },
+    { id: "bookings", icon: Calendar, label: "Bookings", to: "/booking" },
+    { id: "BookHis", icon: List, label: "Booking History", to: "/BookingHistory" },
   ];
 
   return (
@@ -55,15 +53,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       `}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          {/* Logo Section */}
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <BallLogo size={40} />
+
               <div>
                 <h2 className="text-xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
                   P-Booking
                 </h2>
-                <p className="text-xs text-gray-500">Admin Panel</p>
+                <p className="text-xs text-gray-500">User Panel</p> {/* Changed to User Panel */}
               </div>
             </div>
             <button onClick={toggleSidebar} className="lg:hidden">
@@ -78,7 +77,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <li key={item.id}>
                   <Link
                     to={item.to}
-                    onClick={() => setActiveMenu(item.id)}
+                    onClick={() => {
+                      setActiveMenu(item.id);
+                      toggleSidebar(); // Close sidebar on link click for mobile
+                    }}
                     className={`
                       w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all duration-200
                       ${
@@ -96,7 +98,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       />
                       <span className="font-medium">{item.label}</span>
                     </div>
-                    {item.badge && (
+                    {item.badge && ( // Render badge if present
                       <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
                         {item.badge}
                       </span>
@@ -107,27 +109,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </ul>
           </nav>
 
-          {/* User Profile */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-orange-500 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">
-                  Admin User
-                </p>
-                <p className="text-xs text-gray-500">admin@planetfutsal.com</p>
-              </div>
-              <button className="text-gray-400 hover:text-red-500 transition-colors">
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          {/* User Profile / Logout Section */}
+          <div className="px-4 pb-6 mt-auto">
+        <button className="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition">
+          <LogOut className="w-4 h-4" /> Logout
+        </button>
+      </div>
         </div>
       </div>
     </>
   );
 };
 
-export default Sidebar;
+export default UserSidebar;

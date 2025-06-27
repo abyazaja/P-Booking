@@ -15,7 +15,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation Menu */}
           <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-            <a href="/GuestDashboard" className="text-gray-700 hover:text-ballgreen font-medium transition-colors text-sm xl:text-base">
+            <a href="/" className="text-gray-700 hover:text-ballgreen font-medium transition-colors text-sm xl:text-base">
               Dashboard
             </a>
             <a href="/about" className="text-gray-700 hover:text-ballgreen font-medium transition-colors text-sm xl:text-base">
