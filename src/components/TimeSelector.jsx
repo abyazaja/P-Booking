@@ -26,19 +26,34 @@ export default function TimeSelector({ selectedField, selectedDate, onTimeSelect
 
   const formatDate = (date) => {
     if (!(date instanceof Date)) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(date);
+    try {
+      return new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(date);
+    } catch (error) {
+      // Fallback format if locale fails
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR'
-    }).format(price);
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'IDR'
+      }).format(price);
+    } catch (error) {
+      // Fallback format if locale fails
+      return `Rp ${price?.toLocaleString() || 0}`;
+    }
   };
 
   const checkAvailability = (startTime, duration) => {
@@ -54,7 +69,15 @@ export default function TimeSelector({ selectedField, selectedDate, onTimeSelect
 
   const handleConfirm = () => {
     if (selectedTime && checkAvailability(selectedTime, duration)) {
-      onTimeSelect({ startTime: selectedTime, duration });
+      // Calculate end time based on start time and duration
+      const startIdx = allTimes.indexOf(selectedTime);
+      const endIdx = startIdx + duration;
+      const endTime = allTimes[endIdx] || '23:00'; // Default to 23:00 if beyond available times
+      
+      onTimeSelect({ 
+        start: selectedTime + ':00', // Add seconds to match database format
+        end: endTime + ':00'         // Add seconds to match database format
+      });
     }
   };
 

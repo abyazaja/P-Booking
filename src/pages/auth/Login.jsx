@@ -1,10 +1,10 @@
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -12,8 +12,18 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "user",
   });
+
+  // Effect to handle redirect after successful login
+  useEffect(() => {
+    if (user) {
+      if (isAdmin()) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    }
+  }, [user, isAdmin, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,7 +35,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { email, password, role } = formData;
+    const { email, password } = formData;
 
     if (!email || !password) {
       setError("Please fill in all fields.");
@@ -36,11 +46,13 @@ export default function Login() {
     setError("");
 
     try {
-      await login(email, password, role);
-      if (role === "admin") {
-        navigate("/admin/dashboard");
+      const result = await login(email, password);
+      
+      if (result.success) {
+        // Navigation will be handled by useEffect based on user role
+        // No need to navigate here as useEffect will handle it
       } else {
-        navigate("/dashboard");
+        setError(result.message || "Login failed. Please try again.");
       }
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
@@ -55,9 +67,11 @@ export default function Login() {
         Login
       </h2>
 
-      {/* Error message like Register page */}
+      {/* Error message */}
       {error && (
-        <div className="text-red-500 text-center mb-5">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          {error}
+        </div>
       )}
 
       {/* Loading Spinner */}
@@ -74,35 +88,24 @@ export default function Login() {
           type="email"
           name="email"
           className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ballgreen"
-          placeholder=" "
+          placeholder="Enter your email"
           onChange={handleChange}
           value={formData.email}
+          required
         />
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6">
         <label className="block mb-1 font-medium">Password</label>
         <input
           type="password"
           name="password"
           className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ballgreen"
-          placeholder=""
+          placeholder="Enter your password"
           onChange={handleChange}
           value={formData.password}
+          required
         />
-      </div>
-
-      <div className="mb-6">
-        <label className="block mb-1 font-medium">Role</label>
-        <select
-          name="role"
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ballgreen"
-          onChange={handleChange}
-          value={formData.role}
-        >
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-        </select>
       </div>
 
       <button

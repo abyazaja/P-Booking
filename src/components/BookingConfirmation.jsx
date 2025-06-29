@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { Check, CreditCard, Wallet, Upload } from 'lucide-react';
+import { Check, CreditCard, Wallet, Upload, Loader2 } from 'lucide-react';
 
 export default function BookingConfirmation({
   selectedField,
   selectedDate,
   selectedTime,
   onBack,
-  onReset
+  onReset,
+  onSubmit,
+  submitting = false
 }) {
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [paymentType, setPaymentType] = useState('');
-  const [proofFile, setProofFile] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [notes, setNotes] = useState('');
 
   const formatDate = (date) => {
     return new Intl.DateTimeFormat('id-ID', {
@@ -19,63 +18,29 @@ export default function BookingConfirmation({
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    }).format(date);
+    }).format(new Date(date));
   };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-    }).format(price);
+    }).format(price || 50000);
   };
 
-  const { startTime, duration } = selectedTime;
-  const endHour = parseInt(startTime.split(':')[0], 10) + duration;
-  const endTime = `${String(endHour).padStart(2, '0')}:00`;
-  const totalPrice = selectedField.pricePerHour * duration;
+  const startTime = selectedTime?.start || '10:00';
+  const endTime = selectedTime?.end || '12:00';
+  const duration = 2; // Default 2 hours
+  const totalPrice = 50000 * duration;
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setProofFile(file);
-  };
+  const handleSubmit = async () => {
+    if (!onSubmit) return;
+    
+    const bookingData = {
+      notes: notes.trim()
+    };
 
-  const handleConfirmBooking = async () => {
-    if (!paymentMethod) return alert('Silakan pilih metode pembayaran');
-    if (paymentMethod === 'transfer' && !paymentType)
-      return alert('Silakan pilih jenis pembayaran (DP / Full)');
-    if (paymentMethod === 'transfer' && !proofFile)
-      return alert('Silakan unggah bukti pembayaran');
-
-    setIsProcessing(true);
-
-    try {
-      const bookingData = {
-        fieldId: selectedField.id,
-        fieldName: selectedField.name,
-        date: selectedDate,
-        startTime,
-        endTime,
-        duration,
-        pricePerHour: selectedField.pricePerHour,
-        totalPrice,
-        paymentMethod,
-        paymentType,
-        status: 'pending',
-        proofFile,
-      };
-
-      console.log('Booking data:', bookingData);
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      alert('Booking berhasil! Silakan tunggu konfirmasi admin.');
-      onReset();
-    } catch (error) {
-      console.error('Booking error:', error);
-      alert('Terjadi kesalahan. Silakan coba lagi.');
-    } finally {
-      setIsProcessing(false);
-    }
+    await onSubmit(bookingData);
   };
 
   return (
@@ -95,6 +60,10 @@ export default function BookingConfirmation({
             <strong className="text-gray-800">{selectedField?.name}</strong>
           </div>
           <div className="flex justify-between">
+            <span className="text-gray-600">Lokasi:</span>
+            <strong className="text-gray-800">{selectedField?.location}</strong>
+          </div>
+          <div className="flex justify-between">
             <span className="text-gray-600">Tanggal:</span>
             <strong className="text-gray-800">{formatDate(selectedDate)}</strong>
           </div>
@@ -106,6 +75,10 @@ export default function BookingConfirmation({
             <span className="text-gray-600">Durasi:</span>
             <strong className="text-gray-800">{duration} Jam</strong>
           </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Kapasitas:</span>
+            <strong className="text-gray-800">{selectedField?.capacity} orang</strong>
+          </div>
           <hr className="border-gray-300" />
           <div className="flex justify-between text-lg">
             <span className="font-semibold text-gray-800">Total Harga:</span>
@@ -114,104 +87,62 @@ export default function BookingConfirmation({
         </div>
       </div>
 
-      {/* Payment Method */}
+      {/* Notes */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Jenis Pembayaran</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div
-            className={`p-4 rounded-xl border-2 cursor-pointer flex flex-col items-center gap-2 transition ${
-              paymentType === 'dp' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
-            }`}
-            onClick={() => setPaymentType('dp')}
-          >
-            <span className={`font-medium ${paymentType === 'dp' ? 'text-green-600' : 'text-gray-700'}`}>
-              DP
-            </span>
-            <input
-              type="radio"
-              name="paymentType"
-              value="dp"
-              checked={paymentType === 'dp'}
-              onChange={() => setPaymentType('dp')}
-              className="hidden"
-            />
-          </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Catatan (Opsional)</h3>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Tambahkan catatan khusus untuk booking ini..."
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+          rows={3}
+        />
+      </div>
 
-          <div
-            className={`p-4 rounded-xl border-2 cursor-pointer flex flex-col items-center gap-2 transition ${
-              paymentType === 'full' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
-            }`}
-            onClick={() => setPaymentType('full')}
-          >
-            <span className={`font-medium ${paymentType === 'full' ? 'text-green-600' : 'text-gray-700'}`}>
-              Full
-            </span>
-            <input
-              type="radio"
-              name="paymentType"
-              value="full"
-              checked={paymentType === 'full'}
-              onChange={() => setPaymentType('full')}
-              className="hidden"
-            />
+      {/* Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <Check className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800">
+              Informasi Booking
+            </h3>
+            <div className="mt-2 text-sm text-blue-700">
+              <p>• Booking akan dikirim ke admin untuk persetujuan</p>
+              <p>• Anda akan menerima notifikasi setelah admin menyetujui/menolak</p>
+              <p>• Pembayaran dilakukan setelah booking disetujui</p>
+            </div>
           </div>
         </div>
       </div>
 
-
-      {/* Jika transfer, tampilkan pilihan DP/full + upload */}
-      
-        <div className="mb-6 space-y-4">
-          {/* Upload Bukti Pembayaran */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">Upload Bukti Pembayaran</h3>
-            <label
-              htmlFor="upload-proof"
-              className={`flex items-center justify-center px-4 py-3 border-2 rounded-xl cursor-pointer transition ${
-                proofFile ? 'border-green-500 bg-green-50' : 'border-dashed border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              <Upload className="w-5 h-5 mr-2 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">
-                {proofFile ? 'Bukti sudah dipilih' : 'Klik untuk upload gambar'}
-              </span>
-              <input
-                id="upload-proof"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </label>
-            {proofFile && (
-              <div className="mt-3">
-                <p className="text-xs text-gray-500 mb-1">Preview:</p>
-                <img
-                  src={URL.createObjectURL(proofFile)}
-                  alt="Preview Bukti"
-                  className="w-full max-w-sm rounded-xl shadow border"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-    
-
       {/* Tombol Aksi */}
-      <div className="flex justify-center gap-4 mt-6">
+      <div className="flex gap-4">
         <button
-          className="px-6 py-3 rounded-full bg-gray-600 text-white font-semibold hover:bg-gray-700 transition disabled:opacity-50"
           onClick={onBack}
-          disabled={isProcessing}
+          disabled={submitting}
+          className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           Kembali
         </button>
         <button
-          className="px-6 py-3 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition disabled:opacity-50"
-          onClick={handleConfirmBooking}
-          disabled={isProcessing}
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {isProcessing ? 'Memproses...' : 'Konfirmasi Booking'}
+          {submitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Mengirim...
+            </>
+          ) : (
+            <>
+              <Check className="w-4 h-4" />
+              Konfirmasi Booking
+            </>
+          )}
         </button>
       </div>
     </div>

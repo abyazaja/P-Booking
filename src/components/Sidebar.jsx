@@ -13,9 +13,11 @@ import {
   Mail, // Added Mail icon for messages
 } from "lucide-react";
 import BallLogo from "./BallLogo";
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const { logout } = useAuth(); // Get logout function from AuthContext
 
   const menuItems = [
     { id: "dashboard", icon: Home, label: "Dashboard", to: "/admin/dashboard" },
@@ -23,8 +25,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       id: "bookings",
       icon: Calendar,
       label: "Bookings",
-      to: "/admin/bookings",
-      badge: "8",
+      to: "/admin/bookings"
     },
     { id: "users", icon: Users, label: "Users", to: "/admin/users" },
     { id: "courts", icon: MapPin, label: "Courts", to: "/admin/courts" },
@@ -119,7 +120,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 </p>
                 <p className="text-xs text-gray-500">admin@planetfutsal.com</p>
               </div>
-              <button className="text-gray-400 hover:text-red-500 transition-colors">
+              <button 
+                onClick={logout}
+                className="text-gray-400 hover:text-red-500 transition-colors"
+              >
                 <LogOut className="w-4 h-4" />
               </button>
             </div>

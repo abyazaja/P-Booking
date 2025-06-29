@@ -9,12 +9,14 @@ import {
   X, // For mobile close button
 } from "lucide-react";
 import BallLogo from './BallLogo';
+import { useAuth } from '../context/AuthContext';
 // Assuming BallLogo is a component that renders your logo
 // If you don't have this, you'll need to create it or replace it with your logo logic
 
 
 const UserSidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation(); // Hook to get current path
+  const { logout } = useAuth(); // Get logout function from AuthContext
   // Determine active menu based on current path
   const getActiveMenuId = (path) => {
     if (path.startsWith("/BookingHistory")) return "BookHis";
@@ -111,10 +113,13 @@ const UserSidebar = ({ isOpen, toggleSidebar }) => {
 
           {/* User Profile / Logout Section */}
           <div className="px-4 pb-6 mt-auto">
-        <button className="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition">
-          <LogOut className="w-4 h-4" /> Logout
-        </button>
-      </div>
+            <button 
+              onClick={logout}
+              className="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition"
+            >
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
+          </div>
         </div>
       </div>
     </>
