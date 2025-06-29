@@ -59,25 +59,20 @@ const ManageBookings = () => {
     try {
       setActionLoading(bookingId);
       const { data, error } = await bookingAPI.updateBookingStatus(bookingId, BOOKING_STATUS.APPROVED);
-      
-      if (error) throw error;
-      
-      // Update local state
-      setBookings(prev => prev.map(booking => 
-        booking.id === bookingId ? { ...booking, status: BOOKING_STATUS.APPROVED } : booking
-      ));
-      
-      // Create notification for user
+      if (error) {
+        toast.error('Gagal update status: ' + error.message);
+        throw error;
+      }
       await createNotification(
         data.user_id, 
-        `Booking Anda untuk ${data.courts.name} pada ${data.date} telah disetujui!`, 
+        `Booking Anda untuk ${data.courts?.name || ''} pada ${data.date} telah disetujui!`, 
         'success'
       );
-      
       toast.success(`Booking for ${userName} approved successfully`);
+      await fetchBookings();
     } catch (error) {
       console.error('Error approving booking:', error);
-      toast.error('Failed to approve booking');
+      toast.error('Failed to approve booking: ' + (error.message || error));
     } finally {
       setActionLoading(null);
     }
@@ -87,25 +82,20 @@ const ManageBookings = () => {
     try {
       setActionLoading(bookingId);
       const { data, error } = await bookingAPI.updateBookingStatus(bookingId, BOOKING_STATUS.REJECTED);
-      
-      if (error) throw error;
-      
-      // Update local state
-      setBookings(prev => prev.map(booking => 
-        booking.id === bookingId ? { ...booking, status: BOOKING_STATUS.REJECTED } : booking
-      ));
-      
-      // Create notification for user
+      if (error) {
+        toast.error('Gagal update status: ' + error.message);
+        throw error;
+      }
       await createNotification(
         data.user_id, 
-        `Maaf, booking Anda untuk ${data.courts.name} pada ${data.date} telah ditolak.`, 
+        `Maaf, booking Anda untuk ${data.courts?.name || ''} pada ${data.date} telah ditolak.`, 
         'error'
       );
-      
       toast.success(`Booking for ${userName} rejected successfully`);
+      await fetchBookings();
     } catch (error) {
       console.error('Error rejecting booking:', error);
-      toast.error('Failed to reject booking');
+      toast.error('Failed to reject booking: ' + (error.message || error));
     } finally {
       setActionLoading(null);
     }

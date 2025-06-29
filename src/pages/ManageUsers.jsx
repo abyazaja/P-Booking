@@ -44,13 +44,17 @@ const ManageUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('[ManageUsers] Fetching users...');
       const { data, error } = await authAPI.getAllUsers();
+      
+      console.log('[ManageUsers] API Response:', { data, error });
       
       if (error) throw error;
       
+      console.log('[ManageUsers] Setting users:', data);
       setUsers(data || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('[ManageUsers] Error fetching users:', error);
       toast.error('Failed to fetch users');
     } finally {
       setLoading(false);
@@ -122,8 +126,23 @@ const ManageUsers = () => {
     const matchesRole = !filter.role || user.role === filter.role;
     const matchesStatus = !filter.status || user.status === filter.status;
 
-    return matchesSearch && matchesRole && matchesStatus;
+    const result = matchesSearch && matchesRole && matchesStatus;
+    
+    console.log('[ManageUsers] Filtering user:', {
+      user: user.name,
+      searchTerm,
+      filter,
+      matchesSearch,
+      matchesRole,
+      matchesStatus,
+      result
+    });
+
+    return result;
   });
+
+  console.log('[ManageUsers] Filtered users count:', filteredUsers.length);
+  console.log('[ManageUsers] Current filters:', { searchTerm, filter });
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -324,84 +343,88 @@ const ManageUsers = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        checked={selectedUsers.includes(user.id)}
-                        onChange={() => handleSelectUser(user.id)}
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-sm font-medium text-blue-600">
-                              {user.name.charAt(0).toUpperCase()}
-                            </span>
+                {console.log('[ManageUsers] Rendering table with filteredUsers:', filteredUsers)}
+                {filteredUsers.map((user) => {
+                  console.log('[ManageUsers] Rendering user row:', user);
+                  return (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          checked={selectedUsers.includes(user.id)}
+                          onChange={() => handleSelectUser(user.id)}
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <span className="text-sm font-medium text-blue-600">
+                                {user.name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {user.email}
+                            </div>
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRoleColor(user.role)}`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)}`}>
+                          {user.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(user.created_at)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          {user.status === 'inactive' && (
+                            <>
+                              <button
+                                onClick={() => handleApproveUser(user.id, user.name)}
+                                disabled={actionLoading === user.id}
+                                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                              >
+                                {actionLoading === user.id ? (
+                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                ) : (
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                )}
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setUserToDelete(user);
+                                  setShowDeleteModal(true);
+                                }}
+                                disabled={actionLoading === user.id}
+                                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                              >
+                                <XCircle className="w-3 h-3 mr-1" />
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          {user.status === 'active' && (
+                            <span className="text-green-600 text-xs">Approved</span>
+                          )}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRoleColor(user.role)}`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)}`}>
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(user.created_at)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        {user.status === 'inactive' && (
-                          <>
-                            <button
-                              onClick={() => handleApproveUser(user.id, user.name)}
-                              disabled={actionLoading === user.id}
-                              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                            >
-                              {actionLoading === user.id ? (
-                                <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                              ) : (
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                              )}
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => {
-                                setUserToDelete(user);
-                                setShowDeleteModal(true);
-                              }}
-                              disabled={actionLoading === user.id}
-                              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                            >
-                              <XCircle className="w-3 h-3 mr-1" />
-                              Reject
-                            </button>
-                          </>
-                        )}
-                        {user.status === 'active' && (
-                          <span className="text-green-600 text-xs">Approved</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

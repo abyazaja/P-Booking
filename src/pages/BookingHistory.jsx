@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { bookingAPI } from "../services/bookingAPI";
+import { courtAPI } from "../services/courtAPI";
+import { useAuth } from "../context/AuthContext";
 import {
   CheckCircle,
   XCircle,
@@ -8,49 +11,13 @@ import {
   CreditCard,
 } from "lucide-react";
 
-const bookings = [
-  {
-    id: 1,
-    courtType: "Lapangan Futsal Vinyl",
-    date: "15 Juni 2023",
-    time: "19:00 - 21:00",
-    duration: "2 jam",
-    price: "Rp 300.000",
-    paymentProof: "/proof1.jpg",
-    status: "accept",
-    paymentMethod: "Transfer Bank",
-  },
-  {
-    id: 2,
-    courtType: "Lapangan Futsal Rumput Sintetis",
-    date: "18 Juni 2023",
-    time: "16:00 - 18:00",
-    duration: "2 jam",
-    price: "Rp 350.000",
-    paymentProof: "/proof2.jpg",
-    status: "pending",
-    paymentMethod: "E-Wallet",
-  },
-  {
-    id: 3,
-    courtType: "Lapangan Futsal Vinyl",
-    date: "20 Juni 2023",
-    time: "20:00 - 22:00",
-    duration: "2 jam",
-    price: "Rp 300.000",
-    paymentProof: "/proof3.jpg",
-    status: "decline",
-    paymentMethod: "Transfer Bank",
-  },
-];
-
 const getStatusColor = (status) => {
   switch (status) {
-    case "accept":
+    case "approved":
       return "bg-green-100 text-green-800 border-green-200";
     case "pending":
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "decline":
+    case "rejected":
       return "bg-red-100 text-red-800 border-red-200";
     default:
       return "bg-gray-100 text-gray-800 border-gray-200";
@@ -58,6 +25,27 @@ const getStatusColor = (status) => {
 };
 
 const BookingHistory = () => {
+  const { user } = useAuth();
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [courts, setCourts] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      setLoading(true);
+      // Get bookings with court info
+      const { data, error } = await bookingAPI.getUserBookings(user.id);
+      if (error) {
+        setBookings([]);
+      } else {
+        setBookings(data);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, [user]);
+
   const viewPaymentProof = (proofUrl) => {
     window.open(proofUrl, "_blank");
   };
@@ -72,77 +60,90 @@ const BookingHistory = () => {
 
         {/* Tabel */}
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Jenis Lapangan
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tanggal & Jam
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Durasi
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Metode Pembayaran
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {bookings.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {booking.courtType}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2 text-sm text-gray-900">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      {booking.date}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      {booking.time}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {booking.duration}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {booking.price}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2 text-sm text-gray-900">
-                      <CreditCard className="w-4 h-4 text-gray-500" />
-                      {booking.paymentMethod}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                        booking.status
-                      )}`}
-                    >
-                      {booking.status === "accept" && "Diterima"}
-                      {booking.status === "pending" && "Menunggu"}
-                      {booking.status === "decline" && "Ditolak"}
-                    </span>
-                  </td>
-                  
+          {loading ? (
+            <div className="text-center py-8">Loading...</div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">Belum ada riwayat booking.</div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Jenis Lapangan
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tanggal & Jam
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Durasi
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Harga
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Metode Pembayaran
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {bookings.map((booking) => (
+                  <tr
+                    key={booking.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {booking.courts ? booking.courts.name : booking.court_id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-sm text-gray-900">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        {booking.date}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        {booking.start_time} - {booking.end_time}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {/* Durasi dalam jam */}
+                      {(() => {
+                        const start = booking.start_time?.split(":");
+                        const end = booking.end_time?.split(":");
+                        if (start && end) {
+                          const dur = parseInt(end[0]) - parseInt(start[0]);
+                          return dur > 0 ? `${dur} jam` : "-";
+                        }
+                        return "-";
+                      })()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {booking.price}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-sm text-gray-900">
+                        <CreditCard className="w-4 h-4 text-gray-500" />
+                        {booking.payment_method}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                          booking.status
+                        )}`}
+                      >
+                        {booking.status === "approved" && "Diterima"}
+                        {booking.status === "pending" && "Menunggu"}
+                        {booking.status === "rejected" && "Ditolak"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

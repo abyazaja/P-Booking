@@ -4,14 +4,32 @@ export const authAPI = {
   // Get all users (admin only)
   getAllUsers: async () => {
     try {
+      console.log('[authAPI] Getting all users...');
+      console.log('[authAPI] Using table:', TABLES.USERS);
+      
+      // Check current session
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('[authAPI] Current session:', session?.user?.id);
+      
       const { data, error } = await supabase
         .from(TABLES.USERS)
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
+
+      console.log('[authAPI] Supabase response:', { data, error });
+      console.log('[authAPI] Data length:', data?.length);
+      console.log('[authAPI] Data details:', data?.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        created_at: user.created_at
+      })));
 
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
+      console.error('[authAPI] Error in getAllUsers:', error);
       return { data: null, error };
     }
   },
