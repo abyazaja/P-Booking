@@ -1,12 +1,14 @@
+import { supabase } from '../config/supabase';
+
 // Versi sederhana dan ringkas dari ManageCourts dengan UI tetap bagus + Edit & Delete
 import { useState, useEffect } from "react";
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit3, 
-  Trash2, 
-  Loader2, 
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit3,
+  Trash2,
+  Loader2,
   RefreshCw,
   AlertCircle,
   CheckCircle,
@@ -31,8 +33,10 @@ const ManageCourts = () => {
     location: "",
     capacity: "",
     status: COURT_STATUS.ACTIVE,
-    image: null
+    image: null,
+    price: ""
   });
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     fetchCourts();
@@ -42,9 +46,9 @@ const ManageCourts = () => {
     try {
       setLoading(true);
       const { data, error } = await courtAPI.getAllCourts();
-      
+
       if (error) throw error;
-      
+
       setCourts(data || []);
     } catch (error) {
       console.error('Error fetching courts:', error);
@@ -56,47 +60,89 @@ const ManageCourts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!form.name || !form.location || !form.capacity) {
+  
+    if (!form.name || !form.location || !form.capacity || !form.price) {
       toast.error('Please fill in all required fields');
       return;
     }
-
+  
     try {
       setActionLoading('submit');
-      
+  
+      // ✅ Ambil user login dari Supabase Auth
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+  
+      if (authError || !userData?.user?.id) {
+        console.error("User not authenticated:", authError);
+        throw new Error("User not authenticated");
+      }
+  
+      const userId = userData.user.id;
+  
+      // ✅ Log untuk memastikan user ID valid
+      console.log("🧑‍💻 Logged in user ID (auth.uid()):", userId);
+  
+      let imageUrl = form.image;
+  
+      // ✅ Upload gambar jika ada file
+      if (imageFile && imageFile instanceof File) {
+        const { publicUrl, error: uploadError } = await courtAPI.uploadCourtImage(
+          imageFile,
+          form.id || Date.now()
+        );
+        if (uploadError) {
+          console.error("❌ Upload image failed:", uploadError);
+          throw uploadError;
+        }
+        imageUrl = publicUrl;
+        console.log("✅ Image uploaded. URL:", imageUrl);
+      }
+  
+      // ✅ Siapkan data untuk dikirim ke database
       const courtData = {
         name: form.name,
         type: form.type,
         location: form.location,
         capacity: parseInt(form.capacity),
-        status: form.status
+        status: form.status,
+        image: imageUrl,
+        price: parseInt(form.price),
+        user_id: userId
       };
-
+  
+      // ✅ Log isi data sebelum dikirim ke database
+      console.log("📦 courtData to be inserted/updated:", courtData);
+  
       if (form.id) {
-        // Update existing court
+        // Update data court
         const { data, error } = await courtAPI.updateCourt(form.id, courtData);
-        if (error) throw error;
-        
+        if (error) {
+          console.error("❌ Error updating court:", error);
+          throw error;
+        }
         setCourts(prev => prev.map(c => c.id === form.id ? data : c));
         toast.success('Court updated successfully');
       } else {
-        // Create new court
+        // Insert court baru
         const { data, error } = await courtAPI.createCourt(courtData);
-        if (error) throw error;
-        
+        if (error) {
+          console.error("❌ Error creating court:", error);
+          throw error;
+        }
         setCourts(prev => [data, ...prev]);
         toast.success('Court created successfully');
       }
-      
+  
       resetForm();
+      setImageFile(null);
     } catch (error) {
-      console.error('Error saving court:', error);
+      console.error('🚨 Error saving court:', error);
       toast.error('Failed to save court');
     } finally {
       setActionLoading(null);
     }
   };
+  
 
   const handleDelete = async (courtId, courtName) => {
     if (!confirm(`Are you sure you want to delete ${courtName}?`)) {
@@ -106,9 +152,9 @@ const ManageCourts = () => {
     try {
       setActionLoading(courtId);
       const { error } = await courtAPI.deleteCourt(courtId);
-      
+
       if (error) throw error;
-      
+
       setCourts(prev => prev.filter(c => c.id !== courtId));
       toast.success('Court deleted successfully');
     } catch (error) {
@@ -127,8 +173,10 @@ const ManageCourts = () => {
       location: court.location,
       capacity: court.capacity.toString(),
       status: court.status,
-      image: court.image
+      image: court.image,
+      price: court.price?.toString() || ""
     });
+    setImageFile(null);
     setShowModal(true);
   };
 
@@ -140,7 +188,8 @@ const ManageCourts = () => {
       location: "",
       capacity: "",
       status: COURT_STATUS.ACTIVE,
-      image: null
+      image: null,
+      price: ""
     });
     setShowModal(false);
   };
@@ -312,7 +361,7 @@ const ManageCourts = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No courts found</h3>
             <p className="text-gray-500">
-              {search || statusFilter 
+              {search || statusFilter
                 ? "Try adjusting your search or filter criteria."
                 : "No courts have been added yet."}
             </p>
@@ -327,7 +376,7 @@ const ManageCourts = () => {
             <h3 className="text-lg font-semibold mb-4">
               {form.id ? "Edit Court" : "Add New Court"}
             </h3>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -401,6 +450,43 @@ const ManageCourts = () => {
                   <option value={COURT_STATUS.INACTIVE}>Inactive</option>
                   <option value={COURT_STATUS.MAINTENANCE}>Maintenance</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Harga Sewa per Jam (Rp) *
+                </label>
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  placeholder="Masukkan harga sewa"
+                  value={form.price}
+                  onChange={e => setForm({ ...form, price: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gambar Lapangan
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setImageFile(e.target.files[0])}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {form.image && !imageFile && (
+                  <div className="mt-2">
+                    <img src={form.image} alt="Preview" className="h-24 rounded" />
+                  </div>
+                )}
+                {imageFile && (
+                  <div className="mt-2">
+                    <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-24 rounded" />
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 justify-end pt-4">

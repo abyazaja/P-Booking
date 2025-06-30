@@ -6,7 +6,7 @@ export default function FieldSelector({ courts = [], onFieldSelect }) {
     new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-    }).format(price || 50000);
+    }).format(price);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -25,8 +25,8 @@ export default function FieldSelector({ courts = [], onFieldSelect }) {
     return (
       <div className="text-center py-12">
         <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No courts available</h3>
-        <p className="text-gray-500">All courts are currently unavailable for booking.</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada lapangan tersedia</h3>
+        <p className="text-gray-500">Semua lapangan saat ini tidak tersedia untuk booking.</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function FieldSelector({ courts = [], onFieldSelect }) {
             </div>
 
             <p className="text-sm text-ballblack/80 mb-3">
-              {court.type} court with capacity for {court.capacity} people
+              Lapangan {court.type} dengan kapasitas {court.capacity} orang
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
@@ -74,24 +74,24 @@ export default function FieldSelector({ courts = [], onFieldSelect }) {
                 {court.type}
               </span>
               <span className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-medium">
-                {court.capacity} people
+                {court.capacity} orang
               </span>
               {court.status === 'Active' && (
                 <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">
-                  Available
+                  Tersedia
                 </span>
               )}
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold text-ballgreen">
-                {formatPrice(50000)}
+                {formatPrice(court.price)}
                 <span className="text-sm font-medium text-ballblack"> /jam</span>
               </span>
               
               {court.status !== 'Active' && (
                 <span className="text-xs text-red-600 font-medium">
-                  Not available for booking
+                  Tidak tersedia untuk booking
                 </span>
               )}
             </div>

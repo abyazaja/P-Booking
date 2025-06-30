@@ -25,7 +25,7 @@ export default function DateSelector({ selectedField, onDateSelect, onBack }) {
           {selectedField?.description}
         </p>
         <p className="font-medium text-sm text-ballblack">
-          Harga: <span className="text-ballorange">{formatPrice(selectedField?.pricePerHour)}</span>/jam
+          Harga: <span className="text-ballorange">{formatPrice(selectedField?.price)}</span>/jam
         </p>
       </div>
 

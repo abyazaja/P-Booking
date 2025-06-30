@@ -95,7 +95,7 @@ export default function TimeSelector({ selectedField, selectedDate, onTimeSelect
         </p>
         <p className="text-ballblack">
           <span className="font-semibold text-ballgreen">Harga: </span>
-          <span className="text-ballorange">{formatPrice(selectedField?.pricePerHour)}</span>/jam
+          <span className="text-ballorange">{formatPrice(selectedField?.price)}</span>/jam
         </p>
       </div>
 

@@ -16,7 +16,7 @@ export const courtAPI = {
     }
   },
 
-  // Get active courts only (for booking)
+  // Get active courts
   getActiveCourts: async () => {
     try {
       const { data, error } = await supabase
@@ -32,7 +32,7 @@ export const courtAPI = {
     }
   },
 
-  // Get court by ID
+  // Get by ID
   getCourtById: async (courtId) => {
     try {
       const { data, error } = await supabase
@@ -48,7 +48,7 @@ export const courtAPI = {
     }
   },
 
-  // Create new court (admin only)
+  // Create
   createCourt: async (courtData) => {
     try {
       const { data, error } = await supabase
@@ -64,7 +64,7 @@ export const courtAPI = {
     }
   },
 
-  // Update court (admin only)
+  // Update
   updateCourt: async (courtId, updates) => {
     try {
       const { data, error } = await supabase
@@ -81,7 +81,7 @@ export const courtAPI = {
     }
   },
 
-  // Delete court (admin only)
+  // Delete
   deleteCourt: async (courtId) => {
     try {
       const { error } = await supabase
@@ -96,26 +96,33 @@ export const courtAPI = {
     }
   },
 
-  // Upload court image
+  // Upload image
   uploadCourtImage: async (file, courtId) => {
     try {
+      // Validasi file
+      if (!file || !(file instanceof File)) {
+        throw new Error("Invalid file format");
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${courtId}-${Date.now()}.${fileExt}`;
       const filePath = `courts/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('court-images')
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data, error: urlError } = supabase.storage
         .from('court-images')
         .getPublicUrl(filePath);
 
-      return { publicUrl, error: null };
+      if (urlError) throw urlError;
+
+      return { publicUrl: data.publicUrl, error: null };
     } catch (error) {
       return { publicUrl: null, error };
     }
   }
-}; 
+};
