@@ -41,7 +41,7 @@ export default function FieldSelector({ courts = [], onFieldSelect }) {
         >
           <div className="relative">
             <img
-              src={court.image || '/src/assets/lapangan.jpg'}
+              src={court.image}
               alt={court.name}
               className="w-full h-48 object-cover rounded-t-2xl"
             />

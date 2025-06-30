@@ -1,32 +1,28 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // Added useLocation for active link
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   Calendar,
-  User, // Kept User for profile, not Users for admin
-  List, // Kept List for My Schedule
+  List,
   LogOut,
-  X, // For mobile close button
+  X,
 } from "lucide-react";
 import BallLogo from './BallLogo';
 import { useAuth } from '../context/AuthContext';
-// Assuming BallLogo is a component that renders your logo
-// If you don't have this, you'll need to create it or replace it with your logo logic
-
 
 const UserSidebar = ({ isOpen, toggleSidebar }) => {
-  const location = useLocation(); // Hook to get current path
-  const { logout } = useAuth(); // Get logout function from AuthContext
-  // Determine active menu based on current path
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const getActiveMenuId = (path) => {
     if (path.startsWith("/BookingHistory")) return "BookHis";
     if (path.startsWith("/booking")) return "bookings";
-    return "dashboard"; // Default to dashboard
+    return "dashboard";
   };
 
   const [activeMenu, setActiveMenu] = useState(getActiveMenuId(location.pathname));
 
-  // Update active menu when location changes
   React.useEffect(() => {
     setActiveMenu(getActiveMenuId(location.pathname));
   }, [location.pathname]);
@@ -36,6 +32,12 @@ const UserSidebar = ({ isOpen, toggleSidebar }) => {
     { id: "bookings", icon: Calendar, label: "Bookings", to: "/booking" },
     { id: "BookHis", icon: List, label: "Booking History", to: "/BookingHistory" },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/guestdashboard'); // Redirect user to guest dashboard
+    toggleSidebar(); // Close sidebar for mobile after logout
+  };
 
   return (
     <>
@@ -50,21 +52,21 @@ const UserSidebar = ({ isOpen, toggleSidebar }) => {
       {/* Sidebar */}
       <div
         className={`
-        fixed lg:static left-0 top-0 h-screen z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-      `}
+          fixed top-0 h-screen z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+        `}
       >
         <div className="flex flex-col h-full">
           {/* Logo Section */}
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <BallLogo size={40} />
-
               <div>
                 <h2 className="text-xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
                   P-Booking
                 </h2>
-                <p className="text-xs text-gray-500">User Panel</p> {/* Changed to User Panel */}
+                <p className="text-xs text-gray-500">User Panel</p>
               </div>
             </div>
             <button onClick={toggleSidebar} className="lg:hidden">
@@ -81,7 +83,7 @@ const UserSidebar = ({ isOpen, toggleSidebar }) => {
                     to={item.to}
                     onClick={() => {
                       setActiveMenu(item.id);
-                      toggleSidebar(); // Close sidebar on link click for mobile
+                      toggleSidebar();
                     }}
                     className={`
                       w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all duration-200
@@ -100,7 +102,7 @@ const UserSidebar = ({ isOpen, toggleSidebar }) => {
                       />
                       <span className="font-medium">{item.label}</span>
                     </div>
-                    {item.badge && ( // Render badge if present
+                    {item.badge && (
                       <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
                         {item.badge}
                       </span>
@@ -113,8 +115,8 @@ const UserSidebar = ({ isOpen, toggleSidebar }) => {
 
           {/* User Profile / Logout Section */}
           <div className="px-4 pb-6 mt-auto">
-            <button 
-              onClick={logout}
+            <button
+              onClick={handleLogout} // Corrected: Removed the inline comment
               className="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition"
             >
               <LogOut className="w-4 h-4" /> Logout

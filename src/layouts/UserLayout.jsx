@@ -13,17 +13,20 @@ const UserDashboardLayout = () => {
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden" // Consistent with UserSidebar's lg:hidden
           onClick={toggleSidebar}
         ></div>
       )}
 
+      {/* Sidebar (Fixed position) */}
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
+      {/* Main content area */}
+      {/* This div needs to account for the fixed sidebar's width on large screens */}
+      <div className="flex flex-col flex-1 lg:ml-64 overflow-y-auto"> {/* KEY CHANGE HERE */}
         <Header toggleSidebar={toggleSidebar} />
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6"> {/* Remove overflow-auto from here as parent now handles scroll */}
           <Outlet />
         </main>
       </div>

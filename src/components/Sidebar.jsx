@@ -108,26 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </ul>
           </nav>
 
-          {/* User Profile */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-orange-500 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">
-                  Admin User
-                </p>
-                <p className="text-xs text-gray-500">admin@planetfutsal.com</p>
-              </div>
-              <button 
-                onClick={logout}
-                className="text-gray-400 hover:text-red-500 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          
         </div>
       </div>
     </>

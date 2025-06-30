@@ -301,54 +301,83 @@ const ManageCourts = () => {
           {filteredCourts.map((court) => (
             <div
               key={court.id}
-              className="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-900 mb-1">
-                    {court.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-2">
-                    {court.location} • {court.type}
-                  </p>
+              {/* Image Section */}
+              <div className="relative h-48 bg-gray-100">
+                {court.image ? (
+                  <img
+                    src={court.image}
+                    alt={court.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className={`w-full h-full flex items-center justify-center ${
+                    court.image ? 'hidden' : 'flex'
+                  }`}
+                >
+                  <div className="text-center">
+                    <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">No Image</p>
+                  </div>
+                </div>
+                
+                {/* Status Badge */}
+                <div className="absolute top-3 left-3">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(court.status)}`}>
                     {court.status}
                   </span>
                 </div>
-                {court.image && (
-                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-gray-400" />
-                  </div>
-                )}
-              </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Capacity:</span>
-                  <span className="font-medium">{court.capacity} people</span>
+                {/* Price Badge */}
+                <div className="absolute top-3 right-3">
+                  <span className="bg-blue-600 text-white px-2 py-1 text-xs font-semibold rounded-full">
+                    Rp {court.price?.toLocaleString('id-ID') || '0'}/jam
+                  </span>
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(court)}
-                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium hover:bg-yellow-200 transition-colors"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(court.id, court.name)}
-                  disabled={actionLoading === court.id}
-                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors disabled:opacity-50"
-                >
-                  {actionLoading === court.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
-                  )}
-                  Delete
-                </button>
+              {/* Content Section */}
+              <div className="p-6">
+                <div className="mb-4">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-1">
+                    {court.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-2">
+                    📍 {court.location}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    🏟️ {court.type} • 👥 {court.capacity} people
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => handleEdit(court)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium hover:bg-yellow-200 transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(court.id, court.name)}
+                    disabled={actionLoading === court.id}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors disabled:opacity-50"
+                  >
+                    {actionLoading === court.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -372,7 +401,7 @@ const ManageCourts = () => {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">
               {form.id ? "Edit Court" : "Add New Court"}
             </h3>
@@ -479,12 +508,14 @@ const ManageCourts = () => {
                 />
                 {form.image && !imageFile && (
                   <div className="mt-2">
-                    <img src={form.image} alt="Preview" className="h-24 rounded" />
+                    <img src={form.image} alt="Current" className="h-24 w-24 rounded object-cover border" />
+                    <p className="text-xs text-gray-500 mt-1">Current image</p>
                   </div>
                 )}
                 {imageFile && (
                   <div className="mt-2">
-                    <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-24 rounded" />
+                    <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-24 w-24 rounded object-cover border" />
+                    <p className="text-xs text-gray-500 mt-1">New image preview</p>
                   </div>
                 )}
               </div>
