@@ -1,23 +1,21 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { useAuth } from '../shared/hooks/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading, isActiveUser } = useAuth();
+  const { user, authReady } = useAuth();
 
-  if (loading) {
-    return <LoadingSpinner />;
+  // App.jsx already handles auth loading, so we only check if auth is ready
+  if (!authReady) {
+    return null; // Let App.jsx handle the loading display
   }
 
+  // If no user, redirect to login
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
-  if (!isActiveUser()) {
-    return <Navigate to="/login" />;
-  }
-
+  // User is authenticated, render protected content
   return children;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;

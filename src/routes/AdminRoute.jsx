@@ -1,28 +1,26 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { useAuth } from '../shared/hooks/AuthContext';
 
 const AdminRoute = ({ children }) => {
-  const { user, loading, isAdmin, isActiveUser } = useAuth();
+  const { user, authReady } = useAuth();
 
-  if (loading) {
-    return <LoadingSpinner />;
+  // App.jsx already handles auth loading, so we only check if auth is ready
+  if (!authReady) {
+    return null; // Let App.jsx handle the loading display
   }
 
+  // If no user, redirect to login
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
-  if (!isAdmin()) {
-    // If user is not admin, redirect based on their role
-    if (isActiveUser()) {
-      return <Navigate to="/dashboard" />;
-    } else {
-      return <Navigate to="/login" />;
-    }
+  // If user is not admin, redirect to user dashboard
+  if (user.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
   }
 
+  // User is admin, render admin content
   return children;
 };
 
-export default AdminRoute; 
+export default AdminRoute;
