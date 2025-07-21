@@ -95,6 +95,11 @@ function App() {
   // App is ready - render normally
   return (
     <div className="min-h-screen">
+      <Suspense fallback={
+  <GuestLayout>
+    <Loading text="Memuat halaman..." />
+  </GuestLayout>
+}>
       <AuthErrorBanner />
       
       <Routes>
@@ -126,6 +131,7 @@ function App() {
         </Route>
 
         <Route element={<GuestLayout />}>
+        
           <Route
             path="/about"
             element={
@@ -245,7 +251,12 @@ function App() {
 
         {/* Redirect untuk route yang tidak ditemukan */}
         <Route path="*" element={<Navigate to="/" replace />} />
+        
       </Routes>
+      
+
+
+</Suspense>
     </div>
   );
 }

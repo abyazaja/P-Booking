@@ -25,35 +25,19 @@ export default function TimeSelector({ selectedField, selectedDate, onTimeSelect
   }, [selectedField, selectedDate]);
 
   const formatDate = (date) => {
-    if (!(date instanceof Date)) return '-';
-    try {
-      return new Intl.DateTimeFormat('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }).format(date);
-    } catch (error) {
-      // Fallback format if locale fails
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+    return new Intl.DateTimeFormat('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
   };
 
   const formatPrice = (price) => {
-    try {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'IDR'
-      }).format(price);
-    } catch (error) {
-      // Fallback format if locale fails
-      return `Rp ${price?.toLocaleString() || 0}`;
-    }
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR'
+    }).format(price);
   };
 
   const checkAvailability = (startTime, duration) => {
@@ -69,67 +53,55 @@ export default function TimeSelector({ selectedField, selectedDate, onTimeSelect
 
   const handleConfirm = () => {
     if (selectedTime && checkAvailability(selectedTime, duration)) {
-      // Calculate end time based on start time and duration
       const startIdx = allTimes.indexOf(selectedTime);
       const endIdx = startIdx + duration;
-      const endTime = allTimes[endIdx] || '23:00'; // Default to 23:00 if beyond available times
-      
-      onTimeSelect({ 
-        start: selectedTime + ':00', // Add seconds to match database format
-        end: endTime + ':00'         // Add seconds to match database format
+      const endTime = allTimes[endIdx] || '23:00';
+
+      onTimeSelect({
+        start: selectedTime + ':00',
+        end: endTime + ':00',
+        duration: duration
       });
     }
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-6 md:p-10 text-center relative overflow-hidden">
-      <h2 className="text-2xl md:text-3xl font-bold text-ballblack mb-4">Pilih Jam & Durasi</h2>
+    <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-10 text-center">
+      <h2 className="text-2xl md:text-3xl font-bold text-black mb-4">Pilih Jam & Durasi</h2>
 
-      {/* Ringkasan Pilihan */}
-      <div className="bg-ballgreen/10 rounded-2xl p-4 mb-6 text-left space-y-2">
-        <p className="text-ballblack">
-          <span className="font-semibold text-ballgreen">Lapangan: </span>{selectedField?.name}
-        </p>
-        <p className="text-ballblack">
-          <span className="font-semibold text-ballgreen">Tanggal: </span>{formatDate(selectedDate)}
-        </p>
-        <p className="text-ballblack">
-          <span className="font-semibold text-ballgreen">Harga: </span>
-          <span className="text-ballorange">{formatPrice(selectedField?.price)}</span>/jam
-        </p>
+      <div className="bg-green-50 rounded-2xl p-4 mb-6 text-left space-y-2">
+        <p><strong>Lapangan:</strong> {selectedField?.name}</p>
+        <p><strong>Tanggal:</strong> {formatDate(selectedDate)}</p>
+        <p><strong>Harga:</strong> {formatPrice(selectedField?.price || 50000)} / jam</p>
       </div>
 
-      {/* Input Durasi */}
       <div className="mb-4 text-left">
-        <label className="block font-medium text-ballblack mb-2">Durasi (jam)</label>
+        <label className="block font-medium mb-2">Durasi (jam)</label>
         <input
           type="number"
           min="1"
           max="6"
           value={duration}
           onChange={(e) => setDuration(parseInt(e.target.value) || 1)}
-          className="w-24 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-ballgreen"
+          className="w-24 px-3 py-2 border rounded-lg"
         />
       </div>
 
-      {/* Pilihan Jam */}
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-6">
-        {allTimes.map((time, idx) => {
+        {allTimes.map((time) => {
           const isAvailable = checkAvailability(time, duration);
-
           return (
             <button
               key={time}
               onClick={() => isAvailable && setSelectedTime(time)}
               disabled={!isAvailable}
-              className={`
-                px-4 py-3 rounded-xl text-sm font-medium transition shadow 
-                ${!isAvailable 
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                  : selectedTime === time 
-                    ? 'bg-ballorange text-white'
-                    : 'bg-ballgreen text-white hover:bg-ballgreen/90'}
-              `}
+              className={`px-4 py-3 rounded-xl text-sm font-medium transition ${
+                !isAvailable
+                  ? 'bg-gray-200 text-gray-500'
+                  : selectedTime === time
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
             >
               {time}
               <div className="text-xs mt-1">
@@ -140,19 +112,12 @@ export default function TimeSelector({ selectedField, selectedDate, onTimeSelect
         })}
       </div>
 
-      {/* Tombol Aksi */}
       <div className="flex justify-between mt-6">
+        <button onClick={onBack} className="px-6 py-2 rounded-full bg-gray-800 text-white">Kembali</button>
         <button
-          className="px-6 py-2 rounded-full bg-ballblack text-white font-semibold hover:bg-ballblack/90 transition"
-          onClick={onBack}
-        >
-          Kembali
-        </button>
-
-        <button
-          className="px-6 py-2 rounded-full bg-ballgreen text-white font-semibold hover:bg-ballgreen/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleConfirm}
           disabled={!selectedTime || !checkAvailability(selectedTime, duration)}
+          className="px-6 py-2 rounded-full bg-green-600 text-white disabled:opacity-50"
         >
           Konfirmasi
         </button>
